@@ -5,6 +5,7 @@ const NewPlace =()=>{
         <div>
 
             <h2>Newplace work</h2>
+            
 
         </div>
 )

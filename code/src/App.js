@@ -4,18 +4,34 @@ import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 import { Redirect } from 'react-router-dom';
 import NewPlace from './places/pages/NewPlace';
 import User from './user/pages/User';
+import MainNavigation from './shared/components/Navigation/MainNavigation';
+//import UserPlaces from './places/pages/UserPlaces';
+import UserPlaces from './places/pages/UserPlaces';
 const App=()=> {
   return (
   
 <Router>
-  <Switch>
-          
-             <Route path="/" exact><User></User></Route>
-           
-             <Route path="/new/places"><NewPlace></NewPlace></Route>
+ <MainNavigation />
+    <main>
+      <Switch>
+            
+          <Route path="/" exact>
+            <User />
+          </Route>
 
-             <Redirect to="/" ></Redirect>
-  </Switch>
+          <Route path="/:userId/places" exact >
+            <UserPlaces />
+          </Route>   
+            
+           
+          <Route path="/new/places" exact>
+            <NewPlace />
+          </Route>
+
+          <Redirect to="/" ></Redirect>
+           
+    </Switch>
+  </main>
 </Router>
 
   );
