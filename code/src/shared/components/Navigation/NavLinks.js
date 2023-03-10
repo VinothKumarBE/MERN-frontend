@@ -13,11 +13,11 @@ const NavLinks  = props =>{
                      </li>
                       <li>
 
-                        <NavLink to="/u1/places">MY PLACES</NavLink>
+                        <NavLink to="/U1/places">MY PLACES</NavLink>
                      </li>
                       <li>
 
-                        <NavLink to="/new/places">ADD PLACES</NavLink>
+                        <NavLink to="/new/place">ADD PLACES</NavLink>
                      </li> 
                      <li>
 
