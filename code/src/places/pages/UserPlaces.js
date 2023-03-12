@@ -19,7 +19,7 @@ const DUMMY_PLACES = [
     },
     {
         id: 'p2',
-        title: 'Empire State Building',
+        title: 'Empireeee State Building',
         description: 'One of the Most famous Sky Scrapers in the world!',
         imageUrl: 'https://s39023.pcdn.co/wp-content/uploads/2022/10/Where-Are-Those-Morgans-Empire-State-Building.jpg.optimal.jpg',
         address: '20 W 34th St., New York, NY 10001, United States',
