@@ -12,43 +12,56 @@ import Auth from './user/pages/Auth';
 import { AuthContext } from './shared/context/auth-context';
 const App=()=> {
 
-  const [isLogedIn, setIsLoggedIn] =useState(false);
+  const [isLoggedIn, setIsLoggedIn] =useState(false);
   const  login = useCallback(()=>{
     setIsLoggedIn(true)
   },[])
   const  logout = useCallback(()=>{
     setIsLoggedIn(false)
   },[])
+  let  routes;
+  if(isLoggedIn){
+    routes=(
+      <React.Fragment>
+    <Route path="/" exact>
+      <User />
+    </Route>
+      <Route path="/:userId/places" exact >
+     <UserPlaces />
+   </Route>
+   <Route path="/new/place" exact>
+    <NewPlace />
+  </Route>
+    <Route path="/places/:placeId">
+       <UpdatePlace />  
+    </Route>     
+   <Redirect to="/" /> 
+  </React.Fragment>
+    );
+
+  }else{
+    routes=(
+  <React.Fragment>
+    <Route path="/" exact>
+      <User />
+    </Route>
+      <Route path="/:userId/places" exact >
+     <UserPlaces />
+   </Route>
+   <Route path="/auth">
+      <Auth />
+   </Route>
+   <Redirect to="/auth" /> 
+  </React.Fragment>
+    );
+  }
   return (
-  <AuthContext.Provider value={{isLogedIn:isLogedIn, login: login, logout: logout }}>
-<Router>
- <MainNavigation />
+<AuthContext.Provider value={{isLoggedIn:isLoggedIn, login: login, logout: logout }}>
+ <Router>
+   <MainNavigation />
     <main>
       <Switch>
-            
-          <Route path="/" exact>
-            <User />
-          </Route>
-
-          <Route path="/:userId/places" exact >
-            <UserPlaces />
-          </Route> 
-
-          <Route path="/places/:placeId">
-          <UpdatePlace />  
-          </Route>  
-
-          <Route path="/auth">
-             <Auth />
-          </Route>
-            
-           
-          <Route path="/new/place" exact>
-            <NewPlace />
-          </Route>
-
-          <Redirect to="/" ></Redirect>
-           
+      {routes}
     </Switch>
   </main>
 </Router>

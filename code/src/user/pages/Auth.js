@@ -5,10 +5,14 @@ import { AuthContext } from "../../shared/context/auth-context";
 import Input from "../../shared/components/FormElements/Input";
 import Button from "../../shared/components/FormElements/Button";
 import { VALIDATOR_EMAIL, VALIDATOR_MINLENGTH, VALIDATOR_REQUIRE} from '../../shared/util/Validators';
-import {useForm} from '../../shared/hooks/form-hook'
+import {useForm} from '../../shared/hooks/form-hook';
+import ErrorModal from "../../shared/components/UIelement/ErrorModal";
+import LoadingSpinner from "../../shared/components/UIelement/LoadingSpinner";
 const Auth =()=>{
     const auth = useContext(AuthContext);
-    const [isLoginMode, setIsLoginMode] = useState()
+    const [isLoginMode, setIsLoginMode] = useState(true);
+    const [isLoading,setIsLoading] = useState(false)
+    const [error,setError] = useState();
     const [formState,inputHandler, setFormData]= useForm({
         email:{
             value:'',
@@ -40,16 +44,75 @@ const Auth =()=>{
 
             }, false);
         }
-    setIsLoginMode(prevMode => !prevMode)
+    setIsLoginMode(prevMode => !prevMode);    
     };
 
-    const submitHandler =event=>{
+     const submitHandler = async event=>{
      event.preventDefault();
-     console.log(formState.inputs);
-      auth.login()
-    };
+     
+     setIsLoading(true);
+
+     if(isLoginMode){
+ try{
+        const response= await fetch('http://localhost:4500/api/users/login',{
+        method: 'POST',
+        headers:{
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          
+            email:formState.inputs.email.value,
+            password:formState.inputs.password.value
+        })
+     });
+        const responseData = await response.json();
+        if(!response.ok){
+           throw new Error(responseData.message)
+        }
+        setIsLoading(false);
+        auth.login();   
+        }catch(err){
+            setIsLoading(false);
+            setError(err.message ||'Something went wrong, Please Try again.');
+        }
+
+     }else{
+        try{
+             const response= await fetch('http://localhost:4500/api/users/signup',{
+        method: 'POST',
+        headers:{
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            name:formState.inputs.name.value,
+            email:formState.inputs.email.value,
+            password:formState.inputs.password.value
+        })
+     });
+        const responseData = await response.json();
+        if(!response.ok){
+           throw new Error(responseData.message)
+        }
+   
+        setIsLoading(false);
+        auth.login();   
+        }catch(err){
+            
+            setIsLoading(false);
+            setError(err.message ||'Something went wrong, Please Try again.');
+        }
+       }
+  };
+
+  const errorHandler = () =>{
+    setError(null);
+
+  }
     return(
+        <React.Fragment>
+            <ErrorModal error={error} onClear={errorHandler} />
         <Card className="authentication">
+            {isLoading && <LoadingSpinner asOverlay />}
             <h2>Login Required</h2>
             <hr />
             <form onSubmit={submitHandler}>
@@ -76,6 +139,7 @@ const Auth =()=>{
             </form>
             <Button inverse onClick={switchModeHandler}>Switch to {isLoginMode ? 'SIGNUP':'LOGIN'}</Button>
         </Card>
+        </React.Fragment>
     );
 };
 export default Auth;
