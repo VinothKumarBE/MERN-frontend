@@ -1,49 +1,57 @@
-import  {useState, useCallback, useRef,  useEffect} from 'react';
+import { useState, useCallback,  useEffect } from 'react';
+import { useRef } from 'react';
 
+export const useHttpClient = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState();
 
+  const activeHttpRequests = useRef([]);
 
-export  const useHttpClient =()=>{
-   const [isLoading, setIsLoading] =useState(false);
-   const [error, setError] =useState();
-   
+  const sendRequest = useCallback(
+      async (url, method = 'GET', body = null, headers = {}) => {
+      setIsLoading(true);
+      const httpAbortCtrl = new AbortController();
+      activeHttpRequests.current.push(httpAbortCtrl);
 
-    const activeHttpRequests = useRef([]);   
-   
-
-   const sendRequest = useCallback (async (url, method= 'GET', body = null, headers={})=>{
-
-    setIsLoading(true);
-    const  httpAbortctrl = new AbortController();
-    activeHttpRequests.current.push(httpAbortctrl);
-    try{
-        const response =  await fetch(url, {
-
-            method,
-            body,
-            headers,
-            signal: httpAbortctrl.signal
+      try {
+            const response = await fetch(url, {
+             method,
+             body,
+             headers,
+             signal: httpAbortCtrl.signal
         });
-    
-    
-        const responseData = await response.json();
-        if(!response.ok){
-           throw new Error(responseData.message)
-        }
-    return responseData;
-    }catch(err){
-        setError(err.message);
-    }
-    
-setIsLoading(false)
-}, []);
-const  clearError = () => {
-    setError(null)
-};
-useEffect(()=>{ 
-    return ()=>{
-        activeHttpRequests.current.forEach(abortctrl=>abortctrl.abortctrl());
-    };
-},[]);
 
-return {isLoading, error, sendRequest, clearError};
+          const responseData = await response.json();
+
+          activeHttpRequests.current = activeHttpRequests.current.filter(
+          reqCtrl => reqCtrl !== httpAbortCtrl
+        );
+
+        if (!response.ok) {
+          throw new Error(responseData.message);
+        }
+
+        setIsLoading(false);
+        return responseData;
+      } catch (err) {
+        setError(err.message);
+        setIsLoading(false);
+        throw err;
+      }
+    },
+    []
+  );
+
+  const clearError = () => {
+    setError(null);
+  };
+
+  useEffect(() => {
+    return () => {
+      
+      activeHttpRequests.current.forEach(abortCtrl => abortCtrl.abort());
+    };
+  }, []);
+
+    return { isLoading, error, sendRequest, clearError };
 };
