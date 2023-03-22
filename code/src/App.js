@@ -12,43 +12,61 @@ import Auth from './user/pages/Auth';
 import { AuthContext } from './shared/context/auth-context';
 const App=()=> {
 
-  const [isLogedIn, setIsLoggedIn] =useState(false);
-  const  login = useCallback(()=>{
-    setIsLoggedIn(true)
+  const [isLoggedIn, setIsLoggedIn] =useState(false);
+  const [userId, setUserId] =useState(false);
+
+  const  login = useCallback((uid)=>{
+    setIsLoggedIn(true);
+    setUserId(uid);
   },[])
   const  logout = useCallback(()=>{
-    setIsLoggedIn(false)
+    setIsLoggedIn(false);
+    setUserId(null);
   },[])
+  let  routes;
+  if(isLoggedIn){
+    routes=(
+      <React.Fragment>
+    <Route path="/" exact>
+      <User />
+    </Route>
+      <Route path="/:userId/places" exact >
+     <UserPlaces />
+   </Route>
+   <Route path="/new/place" exact>
+    <NewPlace />
+  </Route>
+    <Route path="/places/:placeId">
+       <UpdatePlace />  
+    </Route>     
+   <Redirect to="/" /> 
+  </React.Fragment>
+    );
+
+  }else{
+    routes=(
+  <React.Fragment>
+    <Route path="/" exact>
+      <User />
+    </Route>
+      <Route path="/:userId/places" exact >
+     <UserPlaces />
+   </Route>
+   <Route path="/auth">
+      <Auth />
+   </Route>
+   <Redirect to="/auth" /> 
+  </React.Fragment>
+    );
+  }
   return (
-  <AuthContext.Provider value={{isLogedIn:isLogedIn, login: login, logout: logout }}>
+<AuthContext.Provider
+ value={{isLoggedIn:isLoggedIn, userId: userId, login: login, logout: logout }}>
 <Router>
  <MainNavigation />
-    <main>
-      <Switch>
-            
-          <Route path="/" exact>
-            <User />
-          </Route>
-
-          <Route path="/:userId/places" exact >
-            <UserPlaces />
-          </Route> 
-
-          <Route path="/places/:placeId">
-          <UpdatePlace />  
-          </Route>  
-
-          <Route path="/auth">
-             <Auth />
-          </Route>
-            
-           
-          <Route path="/new/place" exact>
-            <NewPlace />
-          </Route>
-
-          <Redirect to="/" ></Redirect>
-           
+  <main>
+    <Switch>
+       {routes}
     </Switch>
   </main>
 </Router>
